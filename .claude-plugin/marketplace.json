@@ -1,0 +1,14 @@
+{
+  "name": "softkaze-skills",
+  "description": "Skills for the applications of Softkaze",
+  "owner": {
+    "name": "Softkaze"
+  },
+  "plugins": [
+    {
+      "name": "todomarkdown",
+      "source": "./plugins/todomarkdown",
+      "description": "Read and edit TodoMarkdown to do lists (.tdmd files)"
+    }
+  ]
+}

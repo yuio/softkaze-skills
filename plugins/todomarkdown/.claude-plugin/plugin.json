@@ -1,0 +1,8 @@
+{
+  "name": "todomarkdown",
+  "description": "Read and edit TodoMarkdown to do lists (.tdmd files)",
+  "author": {
+    "name": "Softkaze"
+  },
+  "homepage": "https://softkaze.com"
+}
