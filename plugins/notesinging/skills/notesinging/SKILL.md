@@ -19,12 +19,27 @@ It is a program with a window, so read what it writes through a pipe or a file: 
 
 ### Commands
 
-- `-state [-out <file>]` — JSON with `exePath`, `version`, `singer` (the singer who is using it), `takesFolder`, `running` (whether its window is open) and `lastTake`, a summary of the newest take. Start here.
-- `<file.nsxr> [-message <file.md>]` — the exercise is loaded in the open window, which comes to the front, and the message is shown over it; with no window, a new one opens with both. See "Sending an exercise".
+- `-state [-out <file>]` — JSON with `exePath`, `version`, `singer` (the singer who is using it), `takesFolder`, `running` (whether a window is open), `lastTake`, a summary of the newest take, and `windows`: what each open window says of itself now (below). Start here, and run it again before sending anything.
+- `<file.nsxr> [-annotations <file.json>] [-message <file.md>]` — the exercise is loaded in the open window, which comes to the front, with the annotations and the message; with no window, a new one opens with them. See "Sending an exercise".
+- `-annotations <file.json>` — only annotations, kept for their exercise and shown at once when the open window has it, without bringing it to the front: add `-show` when the singer is to try them now. It prints whether they are shown, kept for later or removed; `ERROR:` and exit code 2 when the file is not valid. See "Annotations".
 - `-message <file.md>` — only a message, shown in the open window, which comes to the front.
 - `-show` — the open window comes to the front.
+- Any of them can go together: `NoteSinging.exe "<file.nsxr>" -annotations "<file.json>" -message "<file.md>"`.
 - `-voicereport <take folder | wav> [-from <ms>] [-to <ms>] [-out <file>]` — jitter, shimmer and harmonics to noise ratio as Praat measures them, of every note held 1 s or more, or of the stretch given. Writes `voice.json` in the take folder.
 - `-analyze <take folder | wav> [-out <folder>] [-gate <dB>] [-tolerance <cents>] [-hold <ms>] [-release <ms>]` — the audio through the same pitch measure and note detector as live, to a folder `analysis` in the take: `slots.csv` and `result.json`. For debugging, or to re-measure with other thresholds; the take already has the live data.
+
+### The open windows
+
+Each item of `windows` in `-state` is a window open now (there may be more than one, each with its project):
+
+- `pid`, `foreground`, `minimized`.
+- `project`: `path` (null while it was never saved), `modified`, `id`.
+- `exercise`: `kind` (`file`, `preset`, `motion`, `free`, `freeScale`), `id`, `name`, `file`, `scale`, `tempo`, `transpose`, `flow`, `repetitions`, `countIn`, `restBeats`; `running`, whether it is being sung, and `state`, the one of the slots of a take.
+- `annotations`: `file` and `count` of the ones shown with that exercise, or null.
+- `take`: `recording`, the `number` of the take being recorded and `lastSaved`, the number of the last take saved in that window.
+- `devices`: `input`, `inputOpen`, `midiKeyboard`, `midiKeyboardOpen`.
+
+`windowsNotAnswering` counts the windows that did not answer in 2 seconds, busy or hung. Check the exercise there before sending annotations or talking about what they are singing, and the take being recorded before reviewing the last one.
 
 ## Exercises (.nsxr)
 
@@ -52,7 +67,7 @@ A **score**: notes with times in beats.
 
 - `flow`, `repetitions`, `countIn`, `restBeats` (optional): how it is sung, set when it is loaded; the user may change them afterwards. `flow` is `"along"` (sung at the same time as it is played), `"wait"` (each note waits to be sung) or `"turns"` (played, then sung). A song is `"along"` and once; ear training, `"turns"`.
 - `notes`: `[note, startBeat, lengthBeat, text]`. A note is a MIDI number or a name with its octave: `C4`, `C#4`, `Db4`, `Do4`, `Sol#3`, `Sib3` (C4 is MIDI 60). Leave silences between notes as gaps in the beats. The text is shown on the note: a syllable or a vowel.
-- `marks`: `[beat, text]`, shown at that time over the trace ("Verse 1"). `tips`: `[beat, text, lengthBeat]`, shown as a sign for that long.
+- `marks`: `[beat, text]`, shown at that time over the trace ("Verse 1"). `tips`: `[beat, text, lengthBeat]`, shown as a sign for that long. Both may take a fourth value, the repetition they are shown in, from 1; every repetition without it.
 - A text may start with a circle emoji for its color and a square one for its background: 🔴 🟠 🟡 🟢 🔵 🟣 and 🟥 🟧 🟨 🟩 🟦 🟪.
 - `tonic` and `mode` set the scale the notes are named in: `Major`, `Minor`, `Harmonic minor`, `Melodic minor`, `Dorian`, `Phrygian`, `Lydian`, `Mixolydian`, `Locrian`, `Major pentatonic`, `Minor pentatonic`, `Blues`, `Whole tone`, `Chromatic`.
 
@@ -95,6 +110,28 @@ Every exercise sung is a take, a folder in the takes folder (`takesFolder` of `-
 - `voice.json` and `analysis\` — when the commands above were run.
 
 A folder without `take.json` is a take that did not end well: the application closed while recording. Tell the user.
+
+### Annotations
+
+What you noticed in their takes of an exercise, shown while they sing it again: "the high note that is hard for you comes now: breathe and aim", "you went flat here last time". They are apart from the exercise, so its own tips stay as they are, and they belong to the singer: the application keeps them in `Documents\NoteSinging\singers\<singer>\annotations\<exercise id>.json` and shows them every time that exercise is opened, until they are replaced or removed (the user can remove them from the Exercise menu).
+
+```json
+{
+  "format": "NoteSinging annotations",
+  "exerciseId": "789fbc8b-f754-4a6a-a4aa-daf13b9afed3",
+  "annotations": [
+    [8, "🟠 The high note comes now: breathe and aim", 4],
+    [20, "You went flat here: think it higher", 3, 2]
+  ]
+}
+```
+
+- `exerciseId`: the `id` of the exercise, as `-state` gives it (`windows[].exercise.id`). Presets made in the application have an id of their parameters: it changes when they are changed.
+- `annotations`: `[beat, text, lengthBeat, repetition]` as the tips: the beat from the first note of a repetition, the repetition from 1 or left out for every one. They show as a sign under the top of the trace, framed in orange, so a beat or two before the place is the moment to read them.
+- One line each, under about 50 characters: a longer one is drawn smaller to fit. Few of them, on what matters: the passages the takes show, not every note.
+- Send them again whole each time you review: the file you send replaces the one kept. An empty list removes them.
+- Write them in UTF-8, next to the messages, and send them with `-annotations`, alone or with the exercise and a message. Read what it prints: they may be kept but not shown when the open window has another exercise.
+- Whenever you send something for the singer to try now, the window must come to the front, so they know it is their turn: alone, annotations do not bring it, so send them with `-show` (`-annotations "<file.json>" -show`), or with the exercise.
 
 ### Which take
 
