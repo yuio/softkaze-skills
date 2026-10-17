@@ -9,6 +9,11 @@
       "name": "todomarkdown",
       "source": "./plugins/todomarkdown",
       "description": "Read and edit TodoMarkdown to do lists (.tdmd files)"
+    },
+    {
+      "name": "notesinging",
+      "source": "./plugins/notesinging",
+      "description": "Coach singing with NoteSinging: exercises, takes and voice checks"
     }
   ]
 }

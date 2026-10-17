@@ -9,6 +9,7 @@ and others without changes.
 | Skill | What it is for |
 | --- | --- |
 | [todomarkdown](plugins/todomarkdown/skills/todomarkdown/SKILL.md) | Read and edit [TodoMarkdown](https://apps.microsoft.com/detail/9np39wtpb45t) to do lists (`.tdmd` files) |
+| [notesinging](plugins/notesinging/skills/notesinging/SKILL.md) | Coach singing with NoteSinging: write its exercises, review the takes it records and check the voice |
 
 ## Install
 
@@ -17,6 +18,7 @@ and others without changes.
 ```
 /plugin marketplace add yuio/softkaze-skills
 /plugin install todomarkdown@softkaze-skills
+/plugin install notesinging@softkaze-skills
 ```
 
 To receive the changes by themselves, turn on the auto-update of the marketplace in `/plugin` > Marketplaces.
@@ -25,8 +27,8 @@ To receive the changes by themselves, turn on the auto-update of the marketplace
 
 Copy the folder of the skill, with its name, to the folder of skills of the user:
 
-- `~/.claude/skills/todomarkdown` for Claude Code
-- `~/.agents/skills/todomarkdown` for Codex, Gemini CLI, Cursor, GitHub Copilot and Grok
+- `~/.claude/skills/<skill>` for Claude Code
+- `~/.agents/skills/<skill>` for Codex, Gemini CLI, Cursor, GitHub Copilot and Grok
 
 ### Any chat
 
