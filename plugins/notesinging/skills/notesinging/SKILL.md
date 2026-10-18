@@ -19,7 +19,7 @@ It is a program with a window, so read what it writes through a pipe or a file: 
 
 ### Commands
 
-- `-state [-out <file>]` — JSON with `exePath`, `version`, `singer` (the singer who is using it), `takesFolder`, `running` (whether a window is open), `lastTake`, a summary of the newest take, and `windows`: what each open window says of itself now (below). Start here, and run it again before sending anything. It has `calibration` too: `roundTripMs`, `soundMs` and `videoMs`, measured by the user in Settings > Calibration, null while not measured (see "Delays").
+- `-state [-out <file>]` — JSON with `exePath`, `version`, `singer` (the singer who is using it), `takesFolder`, `running` (whether a window is open), `lastTake`, a summary of the newest take, and `windows`: what each open window says of itself now (below). Start here, and run it again before sending anything. It has `calibration` too: `roundTripMs`, `soundMs` and `videoMs`, measured by the user in Settings > Calibration, null while not measured, and `pitchDelayMs`, what the pitch finder takes, which is known (see "Delays").
 - `<file.nsxr> [-annotations <file.json>] [-message <file.md>]` — the exercise is loaded in the open window, which comes to the front, with the annotations and the message; with no window, a new one opens with them. See "Sending an exercise".
 - `-annotations <file.json>` — only annotations, kept for their exercise and shown at once when the open window has it, without bringing it to the front: add `-show` when the singer is to try them now. It prints whether they are shown, kept for later or removed; `ERROR:` and exit code 2 when the file is not valid. See "Annotations".
 - `-message <file.md>` — only a message, shown in the open window, which comes to the front.
@@ -141,7 +141,7 @@ Every time in a take is when the application knew it, not when it happened in th
 - `soundMs`: the sound going out alone, by the taps of the user to clicks heard. Less precise than the round trip, as it carries how the user taps.
 - `videoMs`: the screen, by taps to flashes seen. It matters for what the user sees against what they hear.
 
-The application does not shift anything by them yet: the slots, the notes asked and the attempts are at the time the application had them. With them null, say that the delays are not measured and do not draw conclusions on reaction times shorter than about a third of a second.
+The application uses them for what the singer sees and for judging: the notes asked reach the present line when they are heard, the trace is drawn when it was sung (so it ends a little short of the line), and sung along, a note is judged by the voice of its time, the delays and the hold of the detection later. The files do not shift anything: the slots, the notes asked and the attempts are at the time the application had them, so subtract the delays yourself; the pitch finder adds `pitchDelayMs` of `-state` (about 0.13 s) to the round trip. With the round trip null, say that the delays are not measured and do not draw conclusions on reaction times shorter than about a third of a second.
 
 ### Which take
 
