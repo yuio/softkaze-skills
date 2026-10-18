@@ -19,7 +19,7 @@ It is a program with a window, so read what it writes through a pipe or a file: 
 
 ### Commands
 
-- `-state [-out <file>]` — JSON with `exePath`, `version`, `singer` (the singer who is using it), `takesFolder`, `running` (whether a window is open), `lastTake`, a summary of the newest take, and `windows`: what each open window says of itself now (below). Start here, and run it again before sending anything.
+- `-state [-out <file>]` — JSON with `exePath`, `version`, `singer` (the singer who is using it), `takesFolder`, `running` (whether a window is open), `lastTake`, a summary of the newest take, and `windows`: what each open window says of itself now (below). Start here, and run it again before sending anything. It has `calibration` too: `roundTripMs`, `soundMs` and `videoMs`, measured by the user in Settings > Calibration, null while not measured (see "Delays").
 - `<file.nsxr> [-annotations <file.json>] [-message <file.md>]` — the exercise is loaded in the open window, which comes to the front, with the annotations and the message; with no window, a new one opens with them. See "Sending an exercise".
 - `-annotations <file.json>` — only annotations, kept for their exercise and shown at once when the open window has it, without bringing it to the front: add `-show` when the singer is to try them now. It prints whether they are shown, kept for later or removed; `ERROR:` and exit code 2 when the file is not valid. See "Annotations".
 - `-message <file.md>` — only a message, shown in the open window, which comes to the front.
@@ -103,7 +103,7 @@ Keep it short: a title, a couple of lines, a short list. Coming to the front wor
 
 Every exercise sung is a take, a folder in the takes folder (`takesFolder` of `-state`; by default `Documents\NoteSinging\takes`), named by date and time and the start of the exercise id: `20261017-193110-13138f0e`. The application keeps a limited number of them and removes the oldest.
 
-- `take.json` — `singer`, `take` (its number among the takes of that exercise and singer, which the application shows to the user), `exercise` (`id`, `name`, `kind`, its parameters), `project` (scale, detector settings), `device`, `started`, `ended`, `durationMs`, `completed`, and `endReason`: `completed`, `stopped` by the user, `silence` or `timeLimit` when it stopped by itself, `device` when the microphone was lost, `projectChanged`; in turns, `sungOverNote` when they sang while the note asked was still sounding, and `speakersHeard` when the microphone heard the notes played through the speakers. In both the application stopped the exercise and told them why: the first asks for patience, the second for headphones.
+- `take.json` — `singer`, `take` (its number among the takes of that exercise and singer, which the application shows to the user), `exercise` (`id`, `name`, `kind`, its parameters), `project` (scale, detector settings), `device`, `calibration` (the delays measured then, see "Delays"), `started`, `ended`, `durationMs`, `completed`, and `endReason`: `completed`, `stopped` by the user, `silence` or `timeLimit` when it stopped by itself, `device` when the microphone was lost, `projectChanged`; in turns, `sungOverNote` when they sang while the note asked was still sounding, and `speakersHeard` when the microphone heard the notes played through the speakers. In both the application stopped the exercise and told them why: the first asks for patience, the second for headphones.
 - `result.json` — every note asked, by `index`: its `note`, `beat`, `attempts` (when, what was sung, whether good), `state` (`hit`, `missed`, `none`), `centsMean` (how far off the pitch was while it was asked; negative is flat), `heldMs`; and totals.
 - `slots.csv` — every 20 ms: `t_ms, frequency_hz, pressed_note, level_db, asked_index, asked_note, beat, state`. `state` is what the exercise was doing: `count` (count in), `play` (the note asked sounding), `turn` (in turns, the note silent but its time going on), `wait` (waiting for the note), `release` (waiting for the voice to stop), `error`, `run` (between notes), `free`, `motion`.
 - `audio.wav` — the microphone, 16 bit mono.
@@ -132,6 +132,16 @@ What you noticed in their takes of an exercise, shown while they sing it again: 
 - Send them again whole each time you review: the file you send replaces the one kept. An empty list removes them.
 - Write them in UTF-8, next to the messages, and send them with `-annotations`, alone or with the exercise and a message. Read what it prints: they may be kept but not shown when the open window has another exercise.
 - Whenever you send something for the singer to try now, the window must come to the front, so they know it is their turn: alone, annotations do not bring it, so send them with `-show` (`-annotations "<file.json>" -show`), or with the exercise.
+
+### Delays
+
+Every time in a take is when the application knew it, not when it happened in the room. Between a note asked and the voice singing it seen in the slots there is: the sound going out to the headphones, the microphone coming in, and the pitch finder needing a stretch of voice to be sure of a pitch, around a tenth to a fifth of a second. The user measures the first two in Settings > Calibration, and `take.json` keeps what was measured then, in `calibration`:
+
+- `roundTripMs`: clicks played and heard back by the microphone: the sound out and the microphone in, added. This is what the singer's reaction is measured behind: subtract it from the `latencyMs` of the notes of `result.json` before judging how quickly they came in, knowing that the pitch finder still adds its share.
+- `soundMs`: the sound going out alone, by the taps of the user to clicks heard. Less precise than the round trip, as it carries how the user taps.
+- `videoMs`: the screen, by taps to flashes seen. It matters for what the user sees against what they hear.
+
+The application does not shift anything by them yet: the slots, the notes asked and the attempts are at the time the application had them. With them null, say that the delays are not measured and do not draw conclusions on reaction times shorter than about a third of a second.
 
 ### Which take
 
