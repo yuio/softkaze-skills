@@ -30,7 +30,7 @@ It is a program with a window, so read what it writes through a pipe or a file: 
 
 ### The open windows
 
-Each item of `windows` in `-state` is a window open now (there may be more than one, each with its project):
+`windows` in `-state` has the window open now, if there is one: the application has one window only, which whatever the program is started with goes to.
 
 - `pid`, `foreground`, `minimized`.
 - `project`: `path` (null while it was never saved), `modified`, `id`.
