@@ -1,0 +1,8 @@
+{
+  "name": "foldercomments",
+  "description": "Read and write the comments FolderComments keeps for folders: notes, fast comment and color",
+  "author": {
+    "name": "Softkaze"
+  },
+  "homepage": "https://softkaze.com"
+}

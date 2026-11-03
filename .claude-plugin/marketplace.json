@@ -14,6 +14,11 @@
       "name": "notesinging",
       "source": "./plugins/notesinging",
       "description": "Coach singing with NoteSinging: exercises, takes and voice checks"
+    },
+    {
+      "name": "foldercomments",
+      "source": "./plugins/foldercomments",
+      "description": "Read and write the comments FolderComments keeps for folders: notes, fast comment and color"
     }
   ]
 }
