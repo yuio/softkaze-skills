@@ -85,7 +85,7 @@ All are optional: what is not given takes its default, or in a change stays as i
 - `color` — of the caption: 0 is the one of the theme, 1 to 24 are Blue, Green, Orange, Purple, Teal, Red, Olive, Magenta, Sky, Lime, Amber, Violet, Cyan, Coral, Moss, Pink, Navy, Forest, Brown, Indigo, Slate, Maroon, Khaki, Grey.
 - `captionSize` — 1 to 3 steps of the grid; `noCaptionGrouped` — true for no caption while it is in a group.
 - `style` — of `tuner`, `meter` and `lufsmeter`: 0 horizontal, 1 vertical, 2 needle.
-- `meterMode` — of `meter`: `"vu"` (its own scale, the magnifier and the references not used), `"ppm"`, `"sample"` or `"truepeak"` (dBFS, on the level axis with the magnifier and the references).
+- `meterMode` — of `meter`: `"vu"` (its own scale, the magnifier and the references not used), `"ppm"`, `"sample"` or `"truepeak"` (dBFS, on a level axis from -60 to +3, red over 0, with the magnifier, which can go up to +3, and the references).
 - `radar` — of `dbs` and `lufs`: true to draw them as a radar, the time going round once in `seconds` and the level away from the middle, as the loudness radars; best square.
 - `radarArc` — of `dbs` and `lufs` as a radar: true for an arc around it lit up to the last level, as the loudness radars.
 - Magnifier of the level axis of `dbs`, `lufs`, `geq` and `lufsmeter`: `lensFrom` and `lensTo`, the levels it magnifies (-60 to 0), and `lensHeight`, the percent of the height they take (10 to 95), 0 for none. The ones the user knows: Mix -30 to -12, Premaster -24 to -6, Master -12 to 0 for levels; Broadcast -29 to -17, Streaming -20 to -8, Premaster -24 to -12, Master -16 to -6 for loudness; all at 70.
