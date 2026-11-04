@@ -49,7 +49,7 @@ The channels of the device are numbered from 0 in the file and from 1 for the us
 | `info` | Values as text: LUFS, max LUFS, dB, max dB, Hz, note, and the loudness of EBU R128 since the last reset, the time and two alerts | `info`, `peakAlert`, `loudAlert`, `pitchWindow` |
 | `correlation` | Of a mapped channel of two or more: how in phase its first two channels are, -1 to +1 | |
 | `balance` | Of a mapped channel of two or more: how much louder its second channel is, in dB | |
-| `vectorscope` | Of a mapped channel of two or more: its first two channels as a line through their samples of the last 60 ms, the mid up and the side across, with its scale automatic | |
+| `vectorscope` | Of a mapped channel of two or more: every sample of its first two channels of the last 60 ms as a dot, the mid up and the side across, with its scale automatic | |
 | `log` | What the capture reports; one per project | |
 | `notes` | Text with styles: `**bold**`, `*italic*`, `<u>underline</u>`, `~~struck~~`, emojis | `textSize`, `textColor`, `backColor` |
 | `title` | A big centered text, all caption | `textSize`, `textColor` |
