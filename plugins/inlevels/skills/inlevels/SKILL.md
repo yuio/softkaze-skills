@@ -14,7 +14,7 @@ You change the project of a window that is open, through commands of the applica
 ## The commands
 `InLevels.exe` is a command of the version of the Microsoft Store. Each command writes a JSON and ends at once; from PowerShell, pipe it (`| Out-String`) so it waits for its output. Every answer has `ok`, and `error` with the reason when it is false; the process then ends with code 2.
 
-- `InLevels.exe --state` — the windows open, each with `name` (its file, or `Untitled`, `Untitled 2`... while it has none), `project` (the path, empty without a file), `modified`, `readOnly`, `live`, `changesAllowed` and, when false, `changesRefused` with why, the device (`api`, `device`, `deviceOpen`, `channels`, `sampleRate`) and how many `components` and `groups` it has. `-project <path or name>` tells only of that one, with `open`.
+- `InLevels.exe --state` — the windows open, each with `composites`, `name` (its file, or `Untitled`, `Untitled 2`... while it has none), `project` (the path, empty without a file), `modified`, `readOnly`, `live`, `changesAllowed` and, when false, `changesRefused` with why, the device (`api`, `device`, `deviceOpen`, `channels`, `sampleRate`) and how many `components` and `groups` it has. `-project <path or name>` tells only of that one, with `open`.
 - `InLevels.exe --project [-out <file>]` — the project of the window, whole, with what is not saved, in the format of its file, with the `id` of each component and group. With `-out` it goes to that file and the answer says so.
 - `InLevels.exe --paste <file>` — components and groups added, as in the format below. They keep the place they say, or take a free one when they have none, and are left selected. The answer has the ids of the new `components` and `groups`.
 - `InLevels.exe --apply <file>` — a list of operations, done in order: added, changed and deleted. When one can not be done none is, and the error says which and why.
@@ -29,7 +29,7 @@ Its `version` is the one of the application. When it is newer than the one this 
 ## The panel
 Places are in units of the panel, 96 dpi pixels at zoom 100%. The grid of the panel is 18 units, the height of a caption: place components on it, on multiples of 18, so they fit each other and the snap. A component is a rectangle `left`, `top`, `right`, `bottom`; its caption, 18 units tall, is inside it at its top. Components of a group are drawn without gaps between them as the group shows them: put them side by side, edge to edge. A group has no place of its own: it is the box around its components, with its own caption of 18 units above them, so leave a free row of the grid over each group.
 
-The channels of the device are numbered from 0 in the file and from 1 for the user ("Channel 1" is `0`).
+The channels of the device are numbered from 0 in the file and from 1 for the user ("Channel 1" is `0`). A **composite channel** is made of others of the device, as a stereo pair, and measured as one (its loudness of all of them, as BS.1770): it is the channel `1000 + its id`. The project keeps them in `composites`, a list of `{ "id": 1, "name": "Master", "channels": [16, 17] }`, left first; `--state` lists them with their `channel` and whether they are `available` with the device, and `--replace` changes them with the project. A component of a channel the device does not have says so instead of measuring.
 
 ## Components
 `type` is one of these, with the settings each uses (`settings` keys, below):
@@ -44,7 +44,9 @@ The channels of the device are numbered from 0 in the file and from 1 for the us
 | `vu` | A classic VU | `style` |
 | `lufsmeter` | The momentary loudness as a bar or a needle | `style`, magnifier, `references` (LUFS) |
 | `pitch` | The heat of every semitone over time and the line of the note | `seconds`, `pitchTrace`, `pitchSpectrum`, `pitchLowOctave`, `pitchHighOctave`, `pitchWindow`, `references` (notes) |
-| `info` | Values as text: LUFS, max LUFS, dB, max dB, Hz, note | `info`, `pitchWindow` |
+| `info` | Values as text: LUFS, max LUFS, dB, max dB, Hz, note, and the loudness of EBU R128 since the last reset, the time and two alerts | `info`, `peakAlert`, `loudAlert`, `pitchWindow` |
+| `correlation` | Of a composite channel: how in phase its first two channels are, -1 to +1 | |
+| `balance` | Of a composite channel: how much louder its second channel is, in dB | |
 | `log` | What the capture reports; one per project | |
 | `notes` | Text with styles: `**bold**`, `*italic*`, `<u>underline</u>`, `~~struck~~`, emojis | `textSize`, `textColor`, `backColor` |
 | `title` | A big centered text, all caption | `textSize`, `textColor` |
@@ -73,7 +75,7 @@ A component in the file:
 - `group` — the index of its group in the `groups` list of the same file or of the same addition, -1 for none. In a change it is `groupId`, the id of the group, 0 for none.
 - `preset` — the name of a preset of its type it follows, empty for none: it takes its settings, and a change of its settings changes the preset, and so every component of it.
 - `text` — of `notes` and `title`.
-- `z` — the order of painting, 0 to leave it in front.
+- `z` — the order of painting: higher is in front, among the groups and the components of no group, or among the components of the same group. 0 to leave it in front when it is added.
 
 ### settings
 All are optional: what is not given takes its default, or in a change stays as it is.
@@ -82,11 +84,13 @@ All are optional: what is not given takes its default, or in a change stays as i
 - `color` — of the caption: 0 is the one of the theme, 1 to 24 are Blue, Green, Orange, Purple, Teal, Red, Olive, Magenta, Sky, Lime, Amber, Violet, Cyan, Coral, Moss, Pink, Navy, Forest, Brown, Indigo, Slate, Maroon, Khaki, Grey.
 - `captionSize` — 1 to 3 steps of the grid; `noCaptionGrouped` — true for no caption while it is in a group.
 - `style` — of `tuner`, `vu` and `lufsmeter`: 0 horizontal, 1 vertical, 2 needle.
+- `radar` — of `dbs` and `lufs`: true to draw them as a radar, the time going round once in `seconds` and the level away from the middle, as the loudness radars; best square.
 - Magnifier of the level axis of `dbs`, `lufs`, `geq` and `lufsmeter`: `lensFrom` and `lensTo`, the levels it magnifies (-60 to 0), and `lensHeight`, the percent of the height they take (10 to 95), 0 for none. The ones the user knows: Mix -30 to -12, Premaster -24 to -6, Master -12 to 0 for levels; Broadcast -29 to -17, Streaming -20 to -8, Premaster -24 to -12, Master -16 to -6 for loudness; all at 70.
 - `peakHoldMs` (0 to 10000) and `peakFallDbs` (1 to 200) — of the peaks of the `geq`.
 - `pitchTrace` and `pitchSpectrum` — what the `pitch` shows; `pitchLowOctave` and `pitchHighOctave` — its note axis, from the C of one octave to the C of another, 1 to 8.
 - `pitchWindow` — how the note is found: 2048 (slow, steady), 1024, 512 (the quickest, the default).
-- `info` — the lines of the `info`: `{ "lufs": true, "lufsMax": true, "db": true, "dbMax": true, "hz": false, "note": false }`.
+- `info` — the lines of the `info`: `{ "lufs": true, "lufsMax": true, "db": true, "dbMax": true, "hz": false, "note": false, "shortTerm": false, "integrated": false, "range": false, "truePeak": false, "plr": false, "sliding": false, "time": false, "peakAlert": false, "loudAlert": false }`. `range` is the loudness range (LRA), `truePeak` the highest true peak, `plr` the true peak over the integrated loudness, `sliding` the highest LUFS of the last 10 seconds, `time` the time since the reset; `peakAlert` and `loudAlert` light PEAK and LOUD. A wide info shows each line in one row, a narrow one in two.
+- `peakAlert` (dBTP, -60 to 3) and `loudAlert` (LUFS, -60 to 0) — the limits of the alerts of the `info`: PEAK lights for 3 s when the true peak reaches it, LOUD while the short-term loudness is over it.
 - `textSize` — of `notes` and `title`: 0 for the default, or 10, 12, 13, 15, 18, 22, 28, 36, 48, 64; `textColor` and `backColor` — as `color`.
 - `references` — up to three lines of reference, a list of `{ "used": true, "name": "Target", "value": -14, "color": 2 }`, in the unit of the type (dB, LUFS, Hz, or a note as a MIDI number, 69 for A4). The graph above a reference takes its color; the highest wins.
 
@@ -131,7 +135,7 @@ The one of the clipboard of InLevels:
 ```
 
 - `add` — as a paste: `meters`, `groups`, `presets`.
-- `change` of a `component` — any of its keys: `type`, `channel`, `name`, `left`, `top`, `right`, `bottom`, `groupId`, `preset`, `text`, `settings`. Of a `group` — `name`, `color`, `captionSize`, `channel`, `locked`.
+- `change` of a `component` — any of its keys: `type`, `channel`, `name`, `left`, `top`, `right`, `bottom`, `groupId`, `preset`, `text`, `z`, `settings`. Of a `group` — `name`, `color`, `captionSize`, `channel`, `locked`, `z`.
 - `delete` of a `component`, or of a `group` with all its components.
 
 ## Making a view the user describes
