@@ -14,13 +14,13 @@ You change the project of a window that is open, through commands of the applica
 ## The commands
 `InLevels.exe` is a command of the version of the Microsoft Store. Each command writes a JSON and ends at once; from PowerShell, pipe it (`| Out-String`) so it waits for its output. Every answer has `ok`, and `error` with the reason when it is false; the process then ends with code 2.
 
-- `InLevels.exe --state` — the windows open, each with `composites`, `name` (its file, or `Untitled`, `Untitled 2`... while it has none), `project` (the path, empty without a file), `modified`, `readOnly`, `live`, `changesAllowed` and, when false, `changesRefused` with why, the device (`api`, `device`, `deviceOpen`, `channels`, `sampleRate`) and how many `components` and `groups` it has. `-project <path or name>` tells only of that one, with `open`.
+- `InLevels.exe --state` — the windows open, each with `mappings`, `name` (its file, or `Untitled`, `Untitled 2`... while it has none), `project` (the path, empty without a file), `modified`, `readOnly`, `live`, `changesAllowed` and, when false, `changesRefused` with why, the device (`api`, `device`, `deviceOpen`, `channels`, `sampleRate`) and how many `components` and `groups` it has. `-project <path or name>` tells only of that one, with `open`.
 - `InLevels.exe --project [-out <file>]` — the project of the window, whole, with what is not saved, in the format of its file, with the `id` of each component and group. With `-out` it goes to that file and the answer says so.
 - `InLevels.exe --paste <file>` — components and groups added, as in the format below. They keep the place they say, or take a free one when they have none, and are left selected. The answer has the ids of the new `components` and `groups`.
 - `InLevels.exe --apply <file>` — a list of operations, done in order: added, changed and deleted. When one can not be done none is, and the error says which and why.
 - `InLevels.exe --replace <file>` — the components, groups, presets and templates replaced by the ones of a whole project file, as `--project` gives it. The device and the view stay.
 
-What `--apply` does not change, such as the composite channels, is changed in the whole project: when the window has its project saved, with `modified` false, edit its file and the window loads it again at once, as one undo step; else take it with `--project`, change it and give it back with `--replace` at once. Either way the rest stays as it was.
+What `--apply` does not change, such as the channel mapping, is changed in the whole project: when the window has its project saved, with `modified` false, edit its file and the window loads it again at once, as one undo step; else take it with `--project`, change it and give it back with `--replace` at once. Either way the rest stays as it was.
 
 With several windows open, every command but `--state` needs `-project`, with the path of the project or its name, as `--state` gives them. With one window, it is that one.
 
@@ -31,7 +31,7 @@ Its `version` is the one of the application. When it is newer than the one this 
 ## The panel
 Places are in units of the panel, 96 dpi pixels at zoom 100%. The grid of the panel is 18 units, the height of a caption: place components on it, on multiples of 18, so they fit each other and the snap. A component is a rectangle `left`, `top`, `right`, `bottom`; its caption, 18 units tall, is inside it at its top. Components of a group are drawn without gaps between them as the group shows them: put them side by side, edge to edge. A group has no place of its own: it is the box around its components, with its own caption of 18 units above them, so leave a free row of the grid over each group.
 
-The channels of the device are numbered from 0 in the file and from 1 for the user ("Channel 1" is `0`). A **composite channel** is made of others of the device, as a stereo pair, and measured as one (its loudness of all of them, as BS.1770): it is the channel `1000 + its id`. The project keeps them in `composites`, a list of `{ "id": 1, "name": "Master", "channels": [16, 17] }`, left first; `--state` lists them with their `channel` and whether they are `available` with the device, and `--replace` changes them with the project. A component of a channel the device does not have says so instead of measuring.
+The channels of the device are numbered from 0 in the file and from 1 for the user ("Channel 1" is `0`). A **mapped channel** has a name and is mapped to one channel of the device, as a microphone, or to several in their places, measured as one (its loudness of all of them, as BS.1770 adds them by their place): it is the channel `1000 + its id`. The project keeps them in `mappings` (`composites` in projects of before), a list of `{ "id": 1, "name": "Main L/R", "channels": [16, 17] }`: `channels` has a channel of the device per place, in the order left, right, center, LFE, left surround, right surround, `-1` for a place without one, as `[0, 1, 2, -1, 4, 5]` for 5.1 without LFE; one channel alone is a mono mapping. `--state` lists them with their `channel` and whether they are `available` with the device. A component may have a channel of the device or a mapped one.
 
 ## Components
 `type` is one of these, with the settings each uses (`settings` keys, below):
@@ -47,9 +47,9 @@ The channels of the device are numbered from 0 in the file and from 1 for the us
 | `lufsmeter` | The momentary loudness as a bar or a needle | `style`, magnifier, `references` (LUFS) |
 | `pitch` | The heat of every semitone over time and the line of the note | `seconds`, `pitchTrace`, `pitchSpectrum`, `pitchLowOctave`, `pitchHighOctave`, `pitchWindow`, `references` (notes) |
 | `info` | Values as text: LUFS, max LUFS, dB, max dB, Hz, note, and the loudness of EBU R128 since the last reset, the time and two alerts | `info`, `peakAlert`, `loudAlert`, `pitchWindow` |
-| `correlation` | Of a composite channel: how in phase its first two channels are, -1 to +1 | |
-| `balance` | Of a composite channel: how much louder its second channel is, in dB | |
-| `vectorscope` | Of a composite channel: its first two channels as points, the mid up and the side across, with its scale automatic | |
+| `correlation` | Of a mapped channel of two or more: how in phase its first two channels are, -1 to +1 | |
+| `balance` | Of a mapped channel of two or more: how much louder its second channel is, in dB | |
+| `vectorscope` | Of a mapped channel of two or more: its first two channels as points, the mid up and the side across, with its scale automatic | |
 | `log` | What the capture reports; one per project | |
 | `notes` | Text with styles: `**bold**`, `*italic*`, `<u>underline</u>`, `~~struck~~`, emojis | `textSize`, `textColor`, `backColor` |
 | `title` | A big centered text, all caption | `textSize`, `textColor` |
