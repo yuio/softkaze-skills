@@ -11,6 +11,7 @@ and others without changes.
 | [todomarkdown](plugins/todomarkdown/skills/todomarkdown/SKILL.md) | Read and edit [TodoMarkdown](https://apps.microsoft.com/detail/9np39wtpb45t) to do lists (`.tdmd` files) |
 | [notesinging](plugins/notesinging/skills/notesinging/SKILL.md) | Coach singing with NoteSinging: write its exercises, review the takes it records and check the voice |
 | [foldercomments](plugins/foldercomments/skills/foldercomments/SKILL.md) | Read and write the notes, fast comments and colors FolderComments keeps for folders (`.foldercomments`) |
+| [inlevels](plugins/inlevels/skills/inlevels/SKILL.md) | Make the views of audio meters the user describes in [InLevels](https://apps.microsoft.com/detail/9nv27jznmk4j), and change its projects (`.inlv`) |
 
 ## Install
 
@@ -21,6 +22,7 @@ and others without changes.
 /plugin install todomarkdown@softkaze-skills
 /plugin install notesinging@softkaze-skills
 /plugin install foldercomments@softkaze-skills
+/plugin install inlevels@softkaze-skills
 ```
 
 To receive the changes by themselves, turn on the auto-update of the marketplace in `/plugin` > Marketplaces.

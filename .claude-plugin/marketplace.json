@@ -19,6 +19,11 @@
       "name": "foldercomments",
       "source": "./plugins/foldercomments",
       "description": "Read and write the comments FolderComments keeps for folders: notes, fast comment and color"
+    },
+    {
+      "name": "inlevels",
+      "source": "./plugins/inlevels",
+      "description": "Read and change the projects of InLevels: make the views of audio meters the user describes"
     }
   ]
 }
