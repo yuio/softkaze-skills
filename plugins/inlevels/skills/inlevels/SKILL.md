@@ -41,18 +41,19 @@ The channels of the device are numbered from 0 in the file and from 1 for the us
 | `lufs` | The loudness over time | `seconds`, magnifier, `references` (LUFS) |
 | `geq` | 23 bands of a third of an octave, with peaks | magnifier, `peakHoldMs`, `peakFallDbs`, `references` (Hz) |
 | `tuner` | The note, the cents and the frequency | `style`, `pitchWindow`, `references` (notes) |
-| `vu` | A classic VU | `style` |
+| `meter` | The level as it reads: a classic VU, or the peaks in dBFS (PPM, sample peak, true peak); `vu` in projects of before | `meterMode`, `style`, `peakHoldMs`, `peakFallDbs`; for the peaks, magnifier and `references` (dBFS) |
 | `lufsmeter` | The momentary loudness as a bar or a needle | `style`, magnifier, `references` (LUFS) |
 | `pitch` | The heat of every semitone over time and the line of the note | `seconds`, `pitchTrace`, `pitchSpectrum`, `pitchLowOctave`, `pitchHighOctave`, `pitchWindow`, `references` (notes) |
 | `info` | Values as text: LUFS, max LUFS, dB, max dB, Hz, note, and the loudness of EBU R128 since the last reset, the time and two alerts | `info`, `peakAlert`, `loudAlert`, `pitchWindow` |
 | `correlation` | Of a composite channel: how in phase its first two channels are, -1 to +1 | |
 | `balance` | Of a composite channel: how much louder its second channel is, in dB | |
+| `vectorscope` | Of a composite channel: its first two channels as points, the mid up and the side across, with its scale automatic | |
 | `log` | What the capture reports; one per project | |
 | `notes` | Text with styles: `**bold**`, `*italic*`, `<u>underline</u>`, `~~struck~~`, emojis | `textSize`, `textColor`, `backColor` |
 | `title` | A big centered text, all caption | `textSize`, `textColor` |
 | `placeholder` | Nothing: it only takes a place | |
 
-The sizes the application gives them, in units, caption included: graphs (`wave`, `dbs`, `lufs`, `geq`, `pitch`) 324 x 144; `tuner`, `vu` and `lufsmeter` 252 x 90 (a vertical one, taller than wide); `info` 144 x 144; `notes` 252 x 144; `log` 432 x 162; `title` 432 x 54. The smallest a component can be is 72 x 72.
+The sizes the application gives them, in units, caption included: graphs (`wave`, `dbs`, `lufs`, `geq`, `pitch`) 324 x 144; `tuner`, `meter` and `lufsmeter` 252 x 90 (a vertical one, taller than wide); `info` 144 x 144; `notes` 252 x 144; `log` 432 x 162; `title` 432 x 54. The smallest a component can be is 72 x 72.
 
 A component in the file:
 
@@ -83,10 +84,12 @@ All are optional: what is not given takes its default, or in a change stays as i
 - `seconds` — of the time graphs: 1, 2, 4, 8, 16 or 32.
 - `color` — of the caption: 0 is the one of the theme, 1 to 24 are Blue, Green, Orange, Purple, Teal, Red, Olive, Magenta, Sky, Lime, Amber, Violet, Cyan, Coral, Moss, Pink, Navy, Forest, Brown, Indigo, Slate, Maroon, Khaki, Grey.
 - `captionSize` — 1 to 3 steps of the grid; `noCaptionGrouped` — true for no caption while it is in a group.
-- `style` — of `tuner`, `vu` and `lufsmeter`: 0 horizontal, 1 vertical, 2 needle.
+- `style` — of `tuner`, `meter` and `lufsmeter`: 0 horizontal, 1 vertical, 2 needle.
+- `meterMode` — of `meter`: `"vu"` (its own scale, the magnifier and the references not used), `"ppm"`, `"sample"` or `"truepeak"` (dBFS, on the level axis with the magnifier and the references).
 - `radar` — of `dbs` and `lufs`: true to draw them as a radar, the time going round once in `seconds` and the level away from the middle, as the loudness radars; best square.
+- `radarArc` — of `dbs` and `lufs` as a radar: true for an arc around it lit up to the last level, as the loudness radars.
 - Magnifier of the level axis of `dbs`, `lufs`, `geq` and `lufsmeter`: `lensFrom` and `lensTo`, the levels it magnifies (-60 to 0), and `lensHeight`, the percent of the height they take (10 to 95), 0 for none. The ones the user knows: Mix -30 to -12, Premaster -24 to -6, Master -12 to 0 for levels; Broadcast -29 to -17, Streaming -20 to -8, Premaster -24 to -12, Master -16 to -6 for loudness; all at 70.
-- `peakHoldMs` (0 to 10000) and `peakFallDbs` (1 to 200) — of the peaks of the `geq`.
+- `peakHoldMs` (0 to 10000) and `peakFallDbs` (1 to 200) — of the peaks of the `geq`, and of the held peak of the `meter`.
 - `pitchTrace` and `pitchSpectrum` — what the `pitch` shows; `pitchLowOctave` and `pitchHighOctave` — its note axis, from the C of one octave to the C of another, 1 to 8.
 - `pitchWindow` — how the note is found: 2048 (slow, steady), 1024, 512 (the quickest, the default).
 - `info` — the lines of the `info`: `{ "lufs": true, "lufsMax": true, "db": true, "dbMax": true, "hz": false, "note": false, "shortTerm": false, "integrated": false, "range": false, "truePeak": false, "plr": false, "sliding": false, "time": false, "peakAlert": false, "loudAlert": false }`. `range` is the loudness range (LRA), `truePeak` the highest true peak, `plr` the true peak over the integrated loudness, `sliding` the highest LUFS of the last 10 seconds, `time` the time since the reset; `peakAlert` and `loudAlert` light PEAK and LOUD. A wide info shows each line in one row, a narrow one in two.
@@ -100,7 +103,7 @@ All are optional: what is not given takes its default, or in a change stays as i
 ```
 
 - `channel` — the channel of all its components, -1 when each has its own.
-- `locked` — its content can not be moved, resized, added to or removed: to change a component of a locked group, unlock the group first, in the same list of operations, and lock it again after, if it was.
+- `locked` — the group stays where it is, and its content can not be moved, resized, added to or removed: to change a component of a locked group, unlock the group first, in the same list of operations, and lock it again after, if it was.
 - `template` — the template it was made from; leave it as it is.
 
 ## The format of --paste
