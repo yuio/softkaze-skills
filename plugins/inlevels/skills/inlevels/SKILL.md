@@ -20,6 +20,8 @@ You change the project of a window that is open, through commands of the applica
 - `InLevels.exe --apply <file>` — a list of operations, done in order: added, changed and deleted. When one can not be done none is, and the error says which and why.
 - `InLevels.exe --replace <file>` — the components, groups, presets and templates replaced by the ones of a whole project file, as `--project` gives it. The device and the view stay.
 
+What `--apply` does not change, such as the composite channels, is changed in the whole project: when the window has its project saved, with `modified` false, edit its file and the window loads it again at once, as one undo step; else take it with `--project`, change it and give it back with `--replace` at once. Either way the rest stays as it was.
+
 With several windows open, every command but `--state` needs `-project`, with the path of the project or its name, as `--state` gives them. With one window, it is that one.
 
 Before changing anything, run `--state`: when `changesAllowed` is false, tell the user `changesRefused` and do not insist. The user decides in File > Settings > "Changes of AI agents to the project" whether you can change it never, outside the live mode (the default) or always; a read only project can not be changed whatever that says. Then run `--project` to see what there is, and the ids.
